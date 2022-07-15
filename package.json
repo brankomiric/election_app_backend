@@ -1,0 +1,30 @@
+{
+  "name": "election_app_backend",
+  "version": "1.0.0",
+  "description": "Server app for Election project",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brankomiric/election_app_backend.git"
+  },
+  "keywords": [
+    "ethereum"
+  ],
+  "author": "Me",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brankomiric/election_app_backend/issues"
+  },
+  "homepage": "https://github.com/brankomiric/election_app_backend#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "ethers": "^5.6.9",
+    "express": "^4.18.1",
+    "isomorphic-fetch": "^3.0.0",
+    "mongoose": "^6.4.4"
+  }
+}
