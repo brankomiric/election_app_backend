@@ -1,11 +1,13 @@
 const express = require("express");
 require("isomorphic-fetch");
+const { validationResult, body } = require("express-validator");
 
 require("dotenv").config();
 const { HDWallet } = require("./services/hd_wallet");
 const { Ethereum } = require("./services/ethereum");
-const { electionAbi } = require("./config/abis");
+const { electionAbi, tokenAbi } = require("./config/abis");
 const { arrayToObj } = require("./utils/util");
+const Vote = require("./models/vote");
 
 const app = express();
 
@@ -59,6 +61,63 @@ app.get(`${routePrefix}/scoreboard`, async (req, res) => {
     return res.status(500).send(err);
   }
 });
+
+app.post(
+  `${routePrefix}/vote`,
+  [
+    body(["candidate", "amount", "userPK"])
+      .notEmpty()
+      .withMessage("missing required propery"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+
+    const input = req.body;
+    let vote = await Vote.findOne({ userPK: input.userPK });
+    try {
+      if (vote) {
+        return res.status(400).send("Only one vote is allowed");
+      }
+
+      vote = new Vote({
+        ...input,
+        status: "in-progress",
+      });
+      await vote.save();
+
+      const conn = new Ethereum();
+
+      await conn.connect(input.userPK);
+      const tokenContract = conn.getContractInstance(
+        process.env.TOKEN_ADDR,
+        tokenAbi
+      );
+
+      // Transfer the Token to the voted Candidate
+      await tokenContract["transfer"](input.candidate, input.amount);
+
+      const electionContract = conn.getContractInstance(
+        process.env.ELECTION_CONTRACT_ADDR,
+        electionAbi
+      );
+
+      // Vote
+      await electionContract["vote"](input.candidate);
+
+      vote.status = "completed";
+      await vote.save();
+
+      return res.status(200).send("ok");
+    } catch (err) {
+      vote.status = "errored";
+      await vote.save();
+      return res.status(500).send(err);
+    }
+  }
+);
 
 const fetchCandidates = async (setVotes = false) => {
   const response = await fetch(candidatesApi);
