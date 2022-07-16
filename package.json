@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/brankomiric/election_app_backend#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "cron": "^2.1.0",
     "dotenv": "^16.0.1",
     "ethers": "^5.6.9",

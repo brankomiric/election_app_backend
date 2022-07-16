@@ -1,6 +1,8 @@
 const express = require("express");
 require("isomorphic-fetch");
 const { validationResult, body } = require("express-validator");
+const { utils } = require("ethers"); 
+const cors = require("cors");
 
 require("dotenv").config();
 const { HDWallet } = require("./services/hd_wallet");
@@ -11,6 +13,7 @@ const Vote = require("./models/vote");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 const routePrefix = "/election/api/v1";
@@ -78,6 +81,7 @@ app.post(
     const input = req.body;
     let vote = await Vote.findOne({ userPK: input.userPK });
     try {
+      console.log("Processing vote request")
       if (vote) {
         return res.status(400).send("Only one vote is allowed");
       }
@@ -96,8 +100,10 @@ app.post(
         tokenAbi
       );
 
+      const tokenAmount = utils.parseUnits(input.amount.toString(), "ether");
+
       // Transfer the Token to the voted Candidate
-      await tokenContract["transfer"](input.candidate, input.amount);
+      await tokenContract["transfer"](input.candidate, tokenAmount);
 
       const electionContract = conn.getContractInstance(
         process.env.ELECTION_CONTRACT_ADDR,

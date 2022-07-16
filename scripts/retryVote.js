@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const { utils } = require("ethers"); 
 const Vote = require("../models/vote");
 const { connect, disconnect } = require("../mongo/connection");
 const { Ethereum } = require("../services/ethereum");
@@ -21,9 +22,11 @@ const { electionAbi, tokenAbi } = require("../config/abis");
           tokenAbi
         );
 
+        const tokenAmount = utils.parseUnits(vote.amount.toString(), "ether"); 
+
         // Transfer the Token to the voted Candidate
         console.log("Starting token transfer");
-        await tokenContract["transfer"](vote.candidate, vote.amount);
+        await tokenContract["transfer"](vote.candidate, tokenAmount);
         console.log("Token transfer completed");
 
         const electionContract = conn.getContractInstance(
