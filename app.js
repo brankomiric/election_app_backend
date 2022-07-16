@@ -112,7 +112,10 @@ app.post(
 
       return res.status(200).send("ok");
     } catch (err) {
-      vote.status = "errored";
+      const isNetworkError =
+        err.includes("code: 'NETWORK_ERROR'") &&
+        err.includes("reason: 'could not detect network'");
+      vote.status = isNetworkError ? "errored-retryable" : "errored";
       await vote.save();
       return res.status(500).send(err);
     }
