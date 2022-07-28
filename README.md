@@ -26,6 +26,6 @@ docker run --name <your_mongo_container_name> -p 27017:27017 mongo
 Are created using the Hardhat framework. More info in the repo readme
 
 ## Lolčina
-[https://github.com/brankomiric/election_app_backend/blob/main/response_to_review.png]
+[https://github.com/brankomiric/election_app_backend/blob/main/review.png]
 Are. You. Serious???
 [https://github.com/brankomiric/election_app_backend/blob/main/response_to_review.png]
